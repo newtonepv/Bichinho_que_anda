@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: PesosENota 0
   m_EditorClassIdentifier: 
   pontuacao: 0
-  incializado: 0
+  incializado: 1

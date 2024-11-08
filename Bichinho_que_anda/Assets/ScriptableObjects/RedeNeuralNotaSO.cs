@@ -13,9 +13,17 @@ public class RedeNeuralNotaSO : ScriptableObject
     {
         return camadas;
     }
+    public void SetCamadas(List<Camada> camadas)
+    {
+        this.camadas = camadas;
+    }
     public float GetPontuacao()
     {
         return pontuacao;
+    }
+    public void SetPontuacao(float pontuacao)
+    {
+        this.pontuacao = pontuacao;
     }
     public bool GetIncializado()
     {
@@ -25,13 +33,14 @@ public class RedeNeuralNotaSO : ScriptableObject
     {
         this.incializado = incializado;
     }
-    public void SetPesos(List<Camada> camadas)
+    public List<float> CalculaSaida(List<float> entrada)
     {
-        this.camadas = camadas;
-    }
-    public void SetPontuacao(float pontuacao)
-    {
-        this.pontuacao = pontuacao;
+
+        for (int i = 0; i < camadas.Count; i++)
+        {
+            entrada = camadas[i].CalcularSaida(entrada);
+        }
+        return entrada;
     }
 }
 public class Camada

@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 public class RedeNeural : MonoBehaviour
 {
-    [SerializeField] RedeNeuralNotaSO redeNeuralNotaSO;
+    [SerializeField] private RedeNeuralNotaSO redeNeuralNotaSO;
+    public RedeNeuralNotaSO GetRedeNeuralNotaSO()
+    {
+        return redeNeuralNotaSO;
+    }
     // Start is called before the first frame update
     void Start()
     {
