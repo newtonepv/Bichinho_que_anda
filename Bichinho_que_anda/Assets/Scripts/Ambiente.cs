@@ -2,50 +2,125 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using UnityEditor;
 using UnityEngine;
 
 public class Ambiente : MonoBehaviour
 {
     [SerializeField] List<GameObject> individuos = new List<GameObject>();
     [SerializeField] float mutacao;
-    [SerializeField] int entradasDasRedesNeurais;
-    [SerializeField] List<int> Ncamadas;
+    [SerializeField] List<int> qtdNosOrganizadosPorCamada;
+    [SerializeField] int numEntradas;
+
     List<RedeNeural> scriptsRedesNeurais = new List<RedeNeural>();
+    RandomNumberGenerator rng = RandomNumberGenerator.Create();
     private void Start()
     {
+
+
         for(int i = 0; i< individuos.Count; i++)
         {
             scriptsRedesNeurais.Add(individuos[i].GetComponentInChildren<RedeNeural>());
-            if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetIncializado()==false)
+            RedeNeuralNotaSO redeNeuralNota = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
+
+
+            if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetIncializado()==false)//se não estiver inicializada a rede neural (pra começar com pesos aleatórios
             //CRIAR AS REDES NEURAIS
             {
-                RedeNeuralNotaSO redeNeutalNota = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
-                redeNeutalNota.SetIncializado(true);
-                List<Camada> camadasMesmo = new List<Camada>();
-
-                for(int j=0;j< Ncamadas.Count; j++)
-                {//pra cada camada
-                    for(int k=0; k < Ncamadas[j]; k++)
-                    {//pra cada no
-                        No novoNo = new No();
-
-                    }
-                }
-
-                
-                
+                Inicializar(redeNeuralNota);
             }
+
+            List<float> entradas = new List<float>();
+            entradas.Add(1);
+            entradas.Add(0);
+            entradas.Add(2);
+            entradas.Add(2);
+            List<float> saidas = redeNeuralNota.CalculaSaida(entradas);
+            for (int j=0;j< saidas.Count; j++)
+            {
+                Debug.Log(saidas[j]);
+            }
+            //para o prox individuo
         }
-        RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        
+        
+        
+        
+    }
+    private float Mutar(float valor)
+    {
+
         byte[] randomBytes = new byte[4];  // 4 bytes para cada float (32 bits)
 
         rng.GetBytes(randomBytes);
 
         int randomInt = BitConverter.ToInt32(randomBytes, 0);
-        float randomFloat = float.Parse((randomInt % 101).ToString())/ 100;
-        Debug.Log(randomFloat);
-        
+        float randomFloat = float.Parse((randomInt % 101).ToString()) / 100;
+        randomFloat *= mutacao;
+        return valor + randomFloat;
     }
 
-    
+    private void Inicializar(RedeNeuralNotaSO redeNeuralNota)
+    {
+        redeNeuralNota.SetIncializado(true);//inicializar
+
+        List<Camada> camadasDaRede = new List<Camada>();
+
+        //a primeira camada recebe um tratamento diferente, porque no lugar de por uma quantidade de pesos pro nó, igual à quantidade de nós na camada anterior
+        //a gente põe uma quantidade de pesos igual à da entrada, visto que a entrada é a camada anterior
+        List<No> listaPrimeirosNos = new List<No>();
+        for (int j = 0; j < qtdNosOrganizadosPorCamada[0]; j++)
+        {
+            No novoNo = new No();
+            List<float> pesos = new List<float>();
+
+            for (int k = 0; k < numEntradas; k++)
+            {
+                pesos.Add(Mutar(0));//adiciona o peso respectivo à entrada, mutando o 0 obtemos um numero aleatorio dentre mutacao e -mutacao
+            }
+
+            novoNo.SetPesos(pesos);
+            novoNo.SetBias(Mutar(0));
+
+            listaPrimeirosNos.Add(novoNo);
+        }
+        Camada primeiraCamada = new Camada();
+        primeiraCamada.SetNos(listaPrimeirosNos);
+
+        camadasDaRede.Add(primeiraCamada);
+
+
+        for (int j = 1; j < qtdNosOrganizadosPorCamada.Count; j++)
+        {//percorre as camadas a partir da segunda
+
+            List<No> nos = new List<No>();
+
+            for (int k = 0; k < qtdNosOrganizadosPorCamada[j]; k++)
+            {//pra cada no
+
+                No novoNo = new No();
+
+                List<float> pesos = new List<float>();
+
+                for (int l = 0; l < qtdNosOrganizadosPorCamada[j - 1]; l++)//preenche pela quantidade de nos na camada anterior
+                {
+                    pesos.Add(Mutar(0));
+                }
+                novoNo.SetPesos(pesos);
+                novoNo.SetBias(Mutar(0));
+
+                nos.Add(novoNo);//completando a lista dos nos
+            }
+            Camada camadaNova = new Camada();
+            camadaNova.SetNos(nos);//transformando de lista de nos para camada
+
+            //camada pronta
+            camadasDaRede.Add(camadaNova);
+        }
+        //agora que todas as camadas estao prontas vamos adicionar a lista de camadas na rede
+
+        redeNeuralNota.SetCamadas(camadasDaRede);
+
+    }
+
 }

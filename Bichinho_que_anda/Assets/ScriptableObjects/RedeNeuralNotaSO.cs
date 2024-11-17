@@ -6,7 +6,7 @@ using System;
 [CreateAssetMenu(fileName = "PesosENota", menuName = "PesosENota")]
 public class RedeNeuralNotaSO : ScriptableObject
 {
-    [SerializeField] private List<Camada> camadas;
+    [SerializeField] private List<Camada> camadas = new List<Camada>();
     [SerializeField] private float pontuacao;
     [SerializeField] private bool incializado;
     public List<Camada> GetCamadas()
@@ -38,14 +38,17 @@ public class RedeNeuralNotaSO : ScriptableObject
 
         for (int i = 0; i < camadas.Count; i++)
         {
-            entrada = camadas[i].CalcularSaida(entrada);
+            entrada = camadas[i].CalcularSaida(entrada);//meio que uma recursividade, a entrada da próxima é a saída dessa
         }
         return entrada;
     }
 }
+
+[System.Serializable]
 public class Camada
 {
-    private List<No> nos;
+
+    [SerializeField] private List<No> nos = new List<No>();
 
 
     public List<No> GetNos()
@@ -63,11 +66,13 @@ public class Camada
         List<float> saidas = new List<float>();
         for(int i = 0; i<nos.Count; i++)
         {
-            saidas[i] = nos[i].CalcularSaida(entradasEmOrdem);
+            saidas.Add(nos[i].CalcularSaida(entradasEmOrdem));
         }
         return saidas;
     }
 }
+
+[System.Serializable]
 public class No
 {
     private List<float> pesos;
