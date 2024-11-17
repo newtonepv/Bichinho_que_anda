@@ -12,5 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 934e851bf6ff8c642b091583c78f40bf, type: 3}
   m_Name: PesosENota 6
   m_EditorClassIdentifier: 
-  pesos: []
-  pontuacao: 0
+  camadas:
+  - nos: []
+  - nos: []
+  pontuacao: 55.5693
+  incializado: 1

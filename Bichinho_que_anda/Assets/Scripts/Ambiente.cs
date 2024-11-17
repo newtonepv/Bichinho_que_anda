@@ -14,14 +14,21 @@ public class Ambiente : MonoBehaviour
 
     List<RedeNeural> scriptsRedesNeurais = new List<RedeNeural>();
     RandomNumberGenerator rng = RandomNumberGenerator.Create();
+    float comeco;
+    List<Vector3> locPadraoDosBichos = new List<Vector3>();
+
     private void Start()
     {
+        comeco = Time.time;
 
 
-        for(int i = 0; i< individuos.Count; i++)
+        for (int i = 0; i< individuos.Count; i++)
         {
+
             scriptsRedesNeurais.Add(individuos[i].GetComponentInChildren<RedeNeural>());
             RedeNeuralNotaSO redeNeuralNota = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
+
+            locPadraoDosBichos.Add(scriptsRedesNeurais[i].transform.position);
 
 
             if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetIncializado()==false)//se não estiver inicializada a rede neural (pra começar com pesos aleatórios
@@ -30,7 +37,7 @@ public class Ambiente : MonoBehaviour
                 Inicializar(redeNeuralNota);
             }
 
-            List<float> entradas = new List<float>();
+            /*List<float> entradas = new List<float>();
             entradas.Add(1);
             entradas.Add(0);
             entradas.Add(2);
@@ -39,7 +46,7 @@ public class Ambiente : MonoBehaviour
             for (int j=0;j< saidas.Count; j++)
             {
                 Debug.Log(saidas[j]);
-            }
+            }*/
             //para o prox individuo
         }
         
@@ -123,4 +130,54 @@ public class Ambiente : MonoBehaviour
 
     }
 
+    private void Update()
+    {
+        if(Time.time - comeco>10)
+        {
+            Resetar();
+        }
+    }
+
+    private void Resetar()
+    {
+        comeco = Time.time;
+
+        RedeNeuralNotaSO melhorIndv = scriptsRedesNeurais[0].GetRedeNeuralNotaSO();
+        int indexDoMelhor = 0;
+        RedeNeuralNotaSO segundoMelhorIndv = scriptsRedesNeurais[1].GetRedeNeuralNotaSO();
+        int indexDoSegundoMelhor = 1;
+
+        for(int i =0; i < scriptsRedesNeurais.Count; i++)
+        {
+            scriptsRedesNeurais[i].transform.position = locPadraoDosBichos[i];
+
+            if (melhorIndv.GetPontuacao() >= scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao())
+            {
+                //atualiza o menor
+                segundoMelhorIndv = melhorIndv;
+                indexDoSegundoMelhor = indexDoMelhor;
+
+                melhorIndv = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
+                indexDoMelhor = i;
+            }else if (segundoMelhorIndv.GetPontuacao() > scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao())
+            {
+                segundoMelhorIndv = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
+                indexDoSegundoMelhor = i;
+            }
+
+            Debug.Log(scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao());
+            //scriptsRedesNeurais[i].GetRedeNeuralNotaSO().SetPontuacao(0);
+
+        }
+        Debug.Log(indexDoMelhor);
+        Debug.Log(indexDoSegundoMelhor);
+        Debug.Log(scriptsRedesNeurais[indexDoMelhor].GetRedeNeuralNotaSO().GetPontuacao());
+        Debug.Log(scriptsRedesNeurais[indexDoSegundoMelhor].GetRedeNeuralNotaSO().GetPontuacao());
+    }
+
+    private void CrossoverDosDoisMelhores(int indexDoMelhor, int indexDoSegundoMelhor)
+    {
+
+    }
 }
+
