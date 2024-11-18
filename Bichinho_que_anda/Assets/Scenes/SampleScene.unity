@@ -448,7 +448,7 @@ MonoBehaviour:
   mutacao: 0.5
   qtdNosOrganizadosPorCamada: 0200000002000000
   numEntradas: 4
-  tempoDaGeracao: 0.16
+  tempoDaGeracao: 5.96
 --- !u!4 &811907230
 Transform:
   m_ObjectHideFlags: 0

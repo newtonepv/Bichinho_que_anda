@@ -38,22 +38,32 @@ public class Ambiente : MonoBehaviour
                 Inicializar(redeNeuralNota);
             }
 
-            /*List<float> entradas = new List<float>();
-            entradas.Add(1);
-            entradas.Add(0);
-            entradas.Add(2);
-            entradas.Add(2);
-            List<float> saidas = redeNeuralNota.CalculaSaida(entradas);
-            for (int j=0;j< saidas.Count; j++)
-            {
-                Debug.Log(saidas[j]);
-            }*/
+            
             //para o prox individuo
         }
-        
-        
-        
-        
+        /*List<float> entradas = new List<float>();
+        entradas.Add(1);
+        entradas.Add(0);
+        entradas.Add(2);
+        entradas.Add(2);
+        List<float> saidas = scriptsRedesNeurais[0].GetRedeNeuralNotaSO().CalculaSaida(entradas);
+        for (int j = 0; j < saidas.Count; j++)
+        {
+            Debug.Log(saidas[j]);
+        }
+        entradas = new List<float>();
+        entradas.Add(1);
+        entradas.Add(0);
+        entradas.Add(3);
+        entradas.Add(4);
+        saidas = scriptsRedesNeurais[0].GetRedeNeuralNotaSO().CalculaSaida(entradas);
+        for (int j = 0; j < saidas.Count; j++)
+        {
+            Debug.Log(saidas[j]);
+        }*/
+
+
+
     }
     private float Mutar(float valor)
     {
@@ -143,51 +153,43 @@ public class Ambiente : MonoBehaviour
     {
         comeco = Time.time;
 
-        RedeNeuralNotaSO melhorIndv = scriptsRedesNeurais[0].GetRedeNeuralNotaSO();
-        int indexDoMelhor = 0;
-        RedeNeuralNotaSO segundoMelhorIndv = scriptsRedesNeurais[1].GetRedeNeuralNotaSO();
-        int indexDoSegundoMelhor = 1;
-
-        if (melhorIndv.GetPontuacao() > segundoMelhorIndv.GetPontuacao())
+        float pontuacaoPrimeiro = scriptsRedesNeurais[0].GetRedeNeuralNotaSO().GetPontuacao();
+        int indexDoPrimeiro = 0;
+        float pontuacaoSegundo = scriptsRedesNeurais[1].GetRedeNeuralNotaSO().GetPontuacao();
+        int indexDoSegundo = 1;
+        
+        for(int i=0;i< scriptsRedesNeurais.Count; i++)//achar o melhor
         {
-            RedeNeuralNotaSO temp = segundoMelhorIndv;
-            segundoMelhorIndv = melhorIndv;
-            melhorIndv = temp;
-
-            int temporal = indexDoSegundoMelhor;
-            indexDoSegundoMelhor = indexDoMelhor;
-            indexDoMelhor = temporal;
+            float pontuacaoDoAtual = scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao();
+            if (pontuacaoDoAtual < pontuacaoPrimeiro)
+            {
+                indexDoPrimeiro = i;
+                pontuacaoPrimeiro = pontuacaoDoAtual;
+            }
         }
 
-        for(int i =0; i < scriptsRedesNeurais.Count; i++)
+        for(int i=0; i< scriptsRedesNeurais.Count; i++)
+        {
+            if(i == indexDoPrimeiro) { continue; }
+            float pontuacaoDoAtual = scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao();
+            
+            if(pontuacaoDoAtual< pontuacaoSegundo)
+            {
+                indexDoSegundo = i;
+                pontuacaoSegundo = pontuacaoDoAtual;
+            }
+        }
+        for (int i = 0; i < scriptsRedesNeurais.Count; i++)
         {
             scriptsRedesNeurais[i].transform.position = locPadraoDosBichos[i];
-
-            if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao() < melhorIndv.GetPontuacao() )
-            {
-                //atualiza o menor
-                segundoMelhorIndv = melhorIndv;
-                indexDoSegundoMelhor = indexDoMelhor;
-
-                melhorIndv = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
-                indexDoMelhor = i;
-            }else if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao() > segundoMelhorIndv.GetPontuacao())
-            {
-                segundoMelhorIndv = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
-                indexDoSegundoMelhor = i;
-            }
-            Debug.Log(scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao());
             scriptsRedesNeurais[i].GetRedeNeuralNotaSO().SetPontuacao(0);
-
         }
 
-        CrossoverDosDoisMelhores(indexDoMelhor, indexDoSegundoMelhor);
+        CrossoverDosDoisMelhores(indexDoPrimeiro, indexDoSegundo);
     }
 
     private void CrossoverDosDoisMelhores(int indexDoMelhor, int indexDoSegundoMelhor)
     {
-        Debug.Log(indexDoMelhor);
-        Debug.Log(indexDoSegundoMelhor);
 
         RedeNeuralNotaSO melhor = scriptsRedesNeurais[indexDoMelhor].GetRedeNeuralNotaSO();
         RedeNeuralNotaSO segundo = scriptsRedesNeurais[indexDoSegundoMelhor].GetRedeNeuralNotaSO();
