@@ -11,6 +11,7 @@ public class Ambiente : MonoBehaviour
     [SerializeField] float mutacao;
     [SerializeField] List<int> qtdNosOrganizadosPorCamada;
     [SerializeField] int numEntradas;
+    [SerializeField] float tempoDaGeracao;
 
     List<RedeNeural> scriptsRedesNeurais = new List<RedeNeural>();
     RandomNumberGenerator rng = RandomNumberGenerator.Create();
@@ -132,7 +133,7 @@ public class Ambiente : MonoBehaviour
 
     private void Update()
     {
-        if(Time.time - comeco>10)
+        if(Time.time - comeco>tempoDaGeracao)
         {
             Resetar();
         }
@@ -147,11 +148,22 @@ public class Ambiente : MonoBehaviour
         RedeNeuralNotaSO segundoMelhorIndv = scriptsRedesNeurais[1].GetRedeNeuralNotaSO();
         int indexDoSegundoMelhor = 1;
 
+        if (melhorIndv.GetPontuacao() > segundoMelhorIndv.GetPontuacao())
+        {
+            RedeNeuralNotaSO temp = segundoMelhorIndv;
+            segundoMelhorIndv = melhorIndv;
+            melhorIndv = temp;
+
+            int temporal = indexDoSegundoMelhor;
+            indexDoSegundoMelhor = indexDoMelhor;
+            indexDoMelhor = temporal;
+        }
+
         for(int i =0; i < scriptsRedesNeurais.Count; i++)
         {
             scriptsRedesNeurais[i].transform.position = locPadraoDosBichos[i];
 
-            if (melhorIndv.GetPontuacao() >= scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao())
+            if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao() < melhorIndv.GetPontuacao() )
             {
                 //atualiza o menor
                 segundoMelhorIndv = melhorIndv;
@@ -159,24 +171,72 @@ public class Ambiente : MonoBehaviour
 
                 melhorIndv = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
                 indexDoMelhor = i;
-            }else if (segundoMelhorIndv.GetPontuacao() > scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao())
+            }else if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao() > segundoMelhorIndv.GetPontuacao())
             {
                 segundoMelhorIndv = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
                 indexDoSegundoMelhor = i;
             }
-
             Debug.Log(scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetPontuacao());
-            //scriptsRedesNeurais[i].GetRedeNeuralNotaSO().SetPontuacao(0);
+            scriptsRedesNeurais[i].GetRedeNeuralNotaSO().SetPontuacao(0);
 
         }
-        Debug.Log(indexDoMelhor);
-        Debug.Log(indexDoSegundoMelhor);
-        Debug.Log(scriptsRedesNeurais[indexDoMelhor].GetRedeNeuralNotaSO().GetPontuacao());
-        Debug.Log(scriptsRedesNeurais[indexDoSegundoMelhor].GetRedeNeuralNotaSO().GetPontuacao());
+
+        CrossoverDosDoisMelhores(indexDoMelhor, indexDoSegundoMelhor);
     }
 
     private void CrossoverDosDoisMelhores(int indexDoMelhor, int indexDoSegundoMelhor)
     {
+        Debug.Log(indexDoMelhor);
+        Debug.Log(indexDoSegundoMelhor);
+
+        RedeNeuralNotaSO melhor = scriptsRedesNeurais[indexDoMelhor].GetRedeNeuralNotaSO();
+        RedeNeuralNotaSO segundo = scriptsRedesNeurais[indexDoSegundoMelhor].GetRedeNeuralNotaSO();
+
+        for(int i=0; i< scriptsRedesNeurais.Count; i++)
+        {
+            if (i != indexDoMelhor && i != indexDoSegundoMelhor)
+            {
+                RedeNeuralNotaSO individuo = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
+
+                List<Camada> camadasMelhor = melhor.GetCamadas();
+                List<Camada> camadasSegundo = segundo.GetCamadas();
+                List<Camada> camadasIndividuo = new List<Camada>();
+
+                for (int j=0;j< camadasMelhor.Count; j++) 
+                {
+                    Camada novaCamada = new Camada();
+
+                    List<No> nosMelhor = camadasMelhor[j].GetNos();
+                    List<No> nosSegundo = camadasSegundo[j].GetNos();
+                    List<No> nosIndividuo = new List<No>();
+
+                    for(int k=0; k<nosMelhor.Count; k++)
+                    {
+                        No novoNo = new No();
+
+                        List<float> pesosMelhor = nosMelhor[k].GetPesos();
+                        List<float> pesosSegundo = nosSegundo[k].GetPesos();
+                        List<float> pesosIndividuo = new List<float>();
+
+                        for (int l=0;l< pesosMelhor.Count; l++) 
+                        {
+                            pesosIndividuo.Add(Mutar( (pesosMelhor[l]+pesosSegundo[l])/2 )); //mutamos a média dos dois melhores
+                        }
+
+                        novoNo.SetPesos(pesosIndividuo);
+                        novoNo.SetBias(Mutar( ( nosMelhor[k].GetBias() + nosSegundo[k].GetBias() )/2 ) );
+
+                        nosIndividuo.Add( novoNo );
+                    }
+
+                    novaCamada.SetNos(nosIndividuo);
+
+                    camadasIndividuo.Add(novaCamada);
+                }
+
+                individuo.SetCamadas( camadasIndividuo );
+            }
+        }
 
     }
 }
