@@ -38,7 +38,7 @@ public class RedeNeuralNotaSO : ScriptableObject
 
         for (int i = 0; i < camadas.Count; i++)
         {
-            entrada = camadas[i].CalcularSaida(entrada);//meio que uma recursividade, a entrada da próxima é a saída dessa
+            entrada = camadas[i].CalcularSaida(entrada, (i+1==camadas.Count) );//meio que uma recursividade, a entrada da próxima é a saída dessa
         }
         return entrada;
     }
@@ -61,12 +61,12 @@ public class Camada
     }
 
 
-    public List<float> CalcularSaida(List<float> entradasEmOrdem)
+    public List<float> CalcularSaida(List<float> entradasEmOrdem, bool eAUltimaCamada)
     {
         List<float> saidas = new List<float>();
         for(int i = 0; i<nos.Count; i++)
         {
-            saidas.Add(nos[i].CalcularSaida(entradasEmOrdem));
+            saidas.Add(nos[i].CalcularSaida(entradasEmOrdem, eAUltimaCamada));
         }
         return saidas;
     }
@@ -75,8 +75,8 @@ public class Camada
 [System.Serializable]
 public class No
 {
-    private List<float> pesos;
-    private float vies;
+    [SerializeField]private List<float> pesos;
+    [SerializeField]private float vies;
 
     public No()
     {
@@ -101,14 +101,18 @@ public class No
     }
 
 
-    public float CalcularSaida(List<float> entradasEmOrdem)
+    public float CalcularSaida(List<float> entradasEmOrdem, bool eAUltimaCamada)
     {
         float somaPonderada = 0;
         for(int i = 0; i< pesos.Count; i++)
         {
             somaPonderada += pesos[i] * entradasEmOrdem[i];
         }
-        return (float)Math.Tanh(somaPonderada+vies);
+        if (!eAUltimaCamada)
+        {
+            return (float)Math.Tanh(somaPonderada + vies);
+        }
+        return somaPonderada + vies;
     }
 
    

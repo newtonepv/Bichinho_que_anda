@@ -13,7 +13,18 @@ MonoBehaviour:
   m_Name: PesosENota 6
   m_EditorClassIdentifier: 
   camadas:
-  - nos: []
-  - nos: []
-  pontuacao: 2.9919887
+  - nos:
+    - pesos:
+      - 2.319139
+      - 0.68108606
+      - -0.7910568
+      - -1.142277
+      vies: 1.91991
+    - pesos:
+      - 0.03938741
+      - 0.97834504
+      - -0.4382247
+      - 1.8345295
+      vies: 0.80571914
+  pontuacao: 1.9957509
   incializado: 1

@@ -4,18 +4,25 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
+using Random = System.Random;
 
 public class Ambiente : MonoBehaviour
 {
     [SerializeField] List<GameObject> individuos = new List<GameObject>();
     [SerializeField] float mutacao;
-    [SerializeField] List<int> qtdNosOrganizadosPorCamada;
-    [SerializeField] int numEntradas;
+    [SerializeField] float rangeDosPesosIniciais;
     [SerializeField] float tempoDaGeracao;
+    
+    [SerializeField] int numEntradas;
+    [SerializeField] List<int> qtdNosOrganizadosPorCamada;
+
+    [SerializeField] int raio;
 
     List<RedeNeural> scriptsRedesNeurais = new List<RedeNeural>();
     RandomNumberGenerator rng = RandomNumberGenerator.Create();
     float comeco;
+
+    Random randomGenerator = new Random();
     List<Vector3> locPadraoDosBichos = new List<Vector3>();
 
     private void Start()
@@ -35,7 +42,10 @@ public class Ambiente : MonoBehaviour
             if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetIncializado()==false)//se não estiver inicializada a rede neural (pra começar com pesos aleatórios
             //CRIAR AS REDES NEURAIS
             {
+                float temp = mutacao;
+                mutacao = rangeDosPesosIniciais;
                 Inicializar(redeNeuralNota);
+                mutacao = temp;
             }
 
             
@@ -183,8 +193,17 @@ public class Ambiente : MonoBehaviour
         {
             scriptsRedesNeurais[i].transform.position = locPadraoDosBichos[i];
             scriptsRedesNeurais[i].GetRedeNeuralNotaSO().SetPontuacao(0);
+            Transform objetivo = individuos[i].transform.Find("Objetivo");
+
+            objetivo.localPosition = GetRandomPointOnCircleBorder(raio);
+ 
+
         }
 
+        /*Debug.Log(scriptsRedesNeurais[indexDoPrimeiro].GetRedeNeuralNotaSO().GetPontuacao());
+        for (int i=0;i< scriptsRedesNeurais[indexDoPrimeiro].GetRedeNeuralNotaSO().GetCamadas().Count;i++) { for (int j = 0; j < scriptsRedesNeurais[indexDoPrimeiro].GetRedeNeuralNotaSO().GetCamadas()[i].GetNos().Count; j++) { Debug.Log("NO "); for(int k=0;k< scriptsRedesNeurais[indexDoPrimeiro].GetRedeNeuralNotaSO().GetCamadas()[i].GetNos()[j].GetPesos().Count; k++){
+                    Debug.Log(scriptsRedesNeurais[indexDoPrimeiro].GetRedeNeuralNotaSO().GetCamadas()[i].GetNos()[j].GetPesos()[k]);
+                } } }*/
         CrossoverDosDoisMelhores(indexDoPrimeiro, indexDoSegundo);
     }
 
@@ -196,7 +215,7 @@ public class Ambiente : MonoBehaviour
 
         for(int i=0; i< scriptsRedesNeurais.Count; i++)
         {
-            if (i != indexDoMelhor && i != indexDoSegundoMelhor)
+            if (i != indexDoMelhor )
             {
                 RedeNeuralNotaSO individuo = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
 
@@ -237,9 +256,64 @@ public class Ambiente : MonoBehaviour
                 }
 
                 individuo.SetCamadas( camadasIndividuo );
+                scriptsRedesNeurais[i].SetRedeNeuralNotaSO(individuo);
             }
         }
 
+    }
+    private void MutarOMelhor(int indexDoMelhor)
+    {
+        RedeNeuralNotaSO melhor = scriptsRedesNeurais[indexDoMelhor].GetRedeNeuralNotaSO();
+        for (int i = 0; i < scriptsRedesNeurais.Count; i++)
+        {
+            if (i != indexDoMelhor)
+            {
+                RedeNeuralNotaSO individuoParaMutar = scriptsRedesNeurais[i].GetRedeNeuralNotaSO();
+
+                // Create a deep copy of the best network's layers
+                List<Camada> camadasMelhor = melhor.GetCamadas();
+                List<Camada> camadasIndividuo = new List<Camada>();
+
+                for (int j = 0; j < camadasMelhor.Count; j++)
+                {
+                    Camada novaCamada = new Camada();
+                    List<No> nosMelhor = camadasMelhor[j].GetNos();
+                    List<No> nosIndividuo = new List<No>();
+
+                    for (int k = 0; k < nosMelhor.Count; k++)
+                    {
+                        No novoNo = new No();
+                        List<float> pesosMelhor = nosMelhor[k].GetPesos();
+                        List<float> pesosIndividuo = new List<float>();
+
+                        for (int l = 0; l < pesosMelhor.Count; l++)
+                        {
+                            pesosIndividuo.Add(Mutar(pesosMelhor[l]));
+                        }
+
+                        novoNo.SetPesos(pesosIndividuo);
+                        novoNo.SetBias(Mutar(nosMelhor[k].GetBias()));
+                        nosIndividuo.Add(novoNo);
+                    }
+
+                    novaCamada.SetNos(nosIndividuo);
+                    camadasIndividuo.Add(novaCamada);
+                }
+
+                // Explicitly update the individual network
+                individuoParaMutar.SetCamadas(camadasIndividuo);
+                scriptsRedesNeurais[i].SetRedeNeuralNotaSO(individuoParaMutar);
+            }
+        }
+    }
+    public Vector3 GetRandomPointOnCircleBorder(float radius)
+    {
+        float angle = Mathf.PI * 2 * UnityEngine.Random.value;
+        return new Vector3(
+            Mathf.Cos(angle) * radius,
+            0,
+            Mathf.Sin(angle) * radius
+        );
     }
 }
 

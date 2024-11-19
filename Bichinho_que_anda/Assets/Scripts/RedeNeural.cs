@@ -6,11 +6,16 @@ public class RedeNeural : MonoBehaviour
     [SerializeField] private RedeNeuralNotaSO redeNeuralNotaSO;
     [SerializeField] private GameObject objetivo;
     Rigidbody rb;
+    int DebugCounter = 0;
 
 
     public RedeNeuralNotaSO GetRedeNeuralNotaSO()
     {
         return redeNeuralNotaSO;
+    }
+    public void SetRedeNeuralNotaSO(RedeNeuralNotaSO redeNeuralNotaSO)
+    {
+        this.redeNeuralNotaSO = redeNeuralNotaSO;
     }
     private void Awake()
     {
@@ -26,8 +31,8 @@ public class RedeNeural : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector2 locDoObjetivo = new Vector2(objetivo.transform.position.x, objetivo.transform.position.z);
-        Vector2 locDoBicho = new Vector2(transform.position.x, transform.position.z);
+        Vector2 locDoObjetivo = new Vector2(objetivo.transform.localPosition.x, objetivo.transform.localPosition.z);
+        Vector2 locDoBicho = new Vector2(transform.localPosition.x, transform.localPosition.z);
 
         List<float> entrada = new List<float>();
         entrada.Add(locDoObjetivo.x);
@@ -36,10 +41,17 @@ public class RedeNeural : MonoBehaviour
         entrada.Add(locDoBicho.y);
 
         List<float> saida = redeNeuralNotaSO.CalculaSaida(entrada);
-        rb.velocity = new Vector3(saida[0], 0, saida[1]);
+        rb.velocity = new Vector3(saida[0], rb.velocity.y, saida[1]) ;
+
+        /*if (DebugCounter%50==0&&gameObject.tag=="DEBUG")
+        {
+            Debug.Log(locDoBicho.x+" "+ locDoBicho.y);
+            Debug.Log(rb.velocity.x+ " "+ rb.velocity.z);
+        }*/
 
         redeNeuralNotaSO.SetPontuacao(CalculoPontuacao(locDoBicho, locDoObjetivo));
 
+        DebugCounter++;
     }
     private float CalculoPontuacao(Vector2 bicho, Vector2 obj)
     {
