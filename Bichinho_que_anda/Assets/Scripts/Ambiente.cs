@@ -39,7 +39,7 @@ public class Ambiente : MonoBehaviour
             locPadraoDosBichos.Add(scriptsRedesNeurais[i].transform.position);
 
 
-            if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetIncializado()==false)//se não estiver inicializada a rede neural (pra começar com pesos aleatórios
+            if (scriptsRedesNeurais[i].GetRedeNeuralNotaSO().GetIncializado()==false)//se nï¿½o estiver inicializada a rede neural (pra comeï¿½ar com pesos aleatï¿½rios
             //CRIAR AS REDES NEURAIS
             {
                 float temp = mutacao;
@@ -94,8 +94,8 @@ public class Ambiente : MonoBehaviour
 
         List<Camada> camadasDaRede = new List<Camada>();
 
-        //a primeira camada recebe um tratamento diferente, porque no lugar de por uma quantidade de pesos pro nó, igual à quantidade de nós na camada anterior
-        //a gente põe uma quantidade de pesos igual à da entrada, visto que a entrada é a camada anterior
+        //a primeira camada recebe um tratamento diferente, porque no lugar de por uma quantidade de pesos pro nï¿½, igual ï¿½ quantidade de nï¿½s na camada anterior
+        //a gente pï¿½e uma quantidade de pesos igual ï¿½ da entrada, visto que a entrada ï¿½ a camada anterior
         List<No> listaPrimeirosNos = new List<No>();
         for (int j = 0; j < qtdNosOrganizadosPorCamada[0]; j++)
         {
@@ -104,7 +104,7 @@ public class Ambiente : MonoBehaviour
 
             for (int k = 0; k < numEntradas; k++)
             {
-                pesos.Add(Mutar(0));//adiciona o peso respectivo à entrada, mutando o 0 obtemos um numero aleatorio dentre mutacao e -mutacao
+                pesos.Add(Mutar(0));//adiciona o peso respectivo ï¿½ entrada, mutando o 0 obtemos um numero aleatorio dentre mutacao e -mutacao
             }
 
             novoNo.SetPesos(pesos);
@@ -189,6 +189,7 @@ public class Ambiente : MonoBehaviour
                 pontuacaoSegundo = pontuacaoDoAtual;
             }
         }
+        //resetando posicoes
         for (int i = 0; i < scriptsRedesNeurais.Count; i++)
         {
             scriptsRedesNeurais[i].transform.position = locPadraoDosBichos[i];
@@ -241,7 +242,7 @@ public class Ambiente : MonoBehaviour
 
                         for (int l=0;l< pesosMelhor.Count; l++) 
                         {
-                            pesosIndividuo.Add(Mutar( (pesosMelhor[l]+pesosSegundo[l])/2 )); //mutamos a média dos dois melhores
+                            pesosIndividuo.Add(Mutar( (pesosMelhor[l]+pesosSegundo[l])/2 )); //mutamos a mï¿½dia dos dois melhores
                         }
 
                         novoNo.SetPesos(pesosIndividuo);

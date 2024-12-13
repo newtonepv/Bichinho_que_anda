@@ -9,6 +9,7 @@ public class RedeNeuralNotaSO : ScriptableObject
     [SerializeField] private List<Camada> camadas = new List<Camada>();
     [SerializeField] private float pontuacao;
     [SerializeField] private bool incializado;
+
     public List<Camada> GetCamadas()
     {
         return camadas;
@@ -38,7 +39,7 @@ public class RedeNeuralNotaSO : ScriptableObject
 
         for (int i = 0; i < camadas.Count; i++)
         {
-            entrada = camadas[i].CalcularSaida(entrada, (i+1==camadas.Count) );//meio que uma recursividade, a entrada da próxima é a saída dessa
+            entrada = camadas[i].CalcularSaida(entrada, (i+1==camadas.Count) );//meio que uma recursividade, a entrada da prï¿½xima ï¿½ a saï¿½da dessa
         }
         return entrada;
     }
